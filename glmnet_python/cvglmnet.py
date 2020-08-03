@@ -341,7 +341,7 @@ def cvglmnet(*, x,
 # end of cvglmnet
 #==========================
 def doCV(i, x, y, family, foldid, nfolds, is_offset, **options):
-    which = foldid == i
+    which = (foldid == i) | (foldid>=nfolds)
     opts = options.copy()
     opts['weights'] = opts['weights'][~which, ]
     opts['lambdau'] = options['lambdau']
