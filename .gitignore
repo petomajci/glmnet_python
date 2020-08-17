@@ -1,4 +1,8 @@
-#cached files
+# build artifacts
+build/
+*.egg-info/
+
+# cached files
 __pycache__
 theme.css~
 
