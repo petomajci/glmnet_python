@@ -197,15 +197,15 @@ OUTPUT ARGUMENTS:
 import sys
 import joblib
 import multiprocessing
-from glmnet_python.glmnetSet import glmnetSet
-from glmnet_python.glmnetPredict import glmnetPredict
+from glmnetSet import glmnetSet
+from glmnetPredict import glmnetPredict
 import scipy
-from glmnet_python.glmnet import glmnet
-from glmnet_python.cvelnet import cvelnet
-from glmnet_python.cvlognet import cvlognet
-from glmnet_python.cvmultnet import cvmultnet
-from glmnet_python.cvmrelnet import cvmrelnet
-from glmnet_python.cvfishnet import cvfishnet
+from glmnet import glmnet
+from cvelnet import cvelnet
+from cvlognet import cvlognet
+from cvmultnet import cvmultnet
+from cvmrelnet import cvmrelnet
+from cvfishnet import cvfishnet
 
 def cvglmnet(*, x,
              y,

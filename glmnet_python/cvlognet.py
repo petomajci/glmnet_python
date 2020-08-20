@@ -4,9 +4,9 @@ Internal function called by cvglmnet. See also cvglmnet
 
 """
 import scipy
-from glmnet_python.glmnetPredict import glmnetPredict
-from glmnet_python.wtmean import wtmean
-from glmnet_python.cvcompute import cvcompute
+from glmnetPredict import glmnetPredict
+from wtmean import wtmean
+from cvcompute import cvcompute
 
 def cvlognet(fit,
             lambdau,
