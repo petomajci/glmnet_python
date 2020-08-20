@@ -197,15 +197,15 @@ OUTPUT ARGUMENTS:
 import sys
 import joblib
 import multiprocessing
-from glmnetSet import glmnetSet
-from glmnetPredict import glmnetPredict
+from glmnet_python.glmnetSet import glmnetSet
+from glmnet_python.glmnetPredict import glmnetPredict
 import scipy
-from glmnet import glmnet
-from cvelnet import cvelnet
-from cvlognet import cvlognet
-from cvmultnet import cvmultnet
-from cvmrelnet import cvmrelnet
-from cvfishnet import cvfishnet
+from glmnet_python.glmnet import glmnet
+from glmnet_python.cvelnet import cvelnet
+from glmnet_python.cvlognet import cvlognet
+from glmnet_python.cvmultnet import cvmultnet
+from glmnet_python.cvmrelnet import cvmrelnet
+from glmnet_python.cvfishnet import cvfishnet
 
 def cvglmnet(*, x,
              y,
@@ -287,25 +287,25 @@ def cvglmnet(*, x,
             cpredmat.append(newFit)
         
     if cpredmat[0]['class'] == 'elnet':
-        cvstuff = cvelnet( cpredmat, options['lambdau'], x, y \
-                          , options['weights'], options['offset'] \
-                          , foldid, ptype, grouped, keep)
+        cvstuff = cvelnet( cpredmat, options['lambdau'], x, y,
+                          options['weights'], options['offset'],
+                          foldid, ptype, grouped, keep)
     elif cpredmat[0]['class'] == 'lognet':
-        cvstuff = cvlognet(cpredmat, options['lambdau'], x, y \
-                          , options['weights'], options['offset'] \
-                          , foldid, ptype, grouped, keep)
+        cvstuff = cvlognet(cpredmat, options['lambdau'], x, y,
+                           options['weights'], options['offset'],
+                           foldid, nfolds, ptype, grouped, keep)
     elif cpredmat[0]['class'] == 'multnet':
-        cvstuff = cvmultnet(cpredmat, options['lambdau'], x, y \
-                          , options['weights'], options['offset'] \
-                          , foldid, ptype, grouped, keep)
+        cvstuff = cvmultnet(cpredmat, options['lambdau'], x, y,
+                           options['weights'], options['offset'],
+                           foldid, ptype, grouped, keep)
     elif cpredmat[0]['class'] == 'mrelnet':
-        cvstuff = cvmrelnet(cpredmat, options['lambdau'], x, y \
-                          , options['weights'], options['offset'] \
-                          , foldid, ptype, grouped, keep)
+        cvstuff = cvmrelnet(cpredmat, options['lambdau'], x, y,
+                            options['weights'], options['offset'],
+                            foldid, ptype, grouped, keep)
     elif cpredmat[0]['class'] == 'fishnet':
-        cvstuff = cvfishnet(cpredmat, options['lambdau'], x, y \
-                           , options['weights'], options['offset'] \
-                           , foldid, ptype, grouped, keep)
+        cvstuff = cvfishnet(cpredmat, options['lambdau'], x, y,
+                            options['weights'], options['offset'],
+                            foldid, ptype, grouped, keep)
     elif cpredmat[0]['class'] == 'coxnet':
         raise NotImplementedError('Cross-validation for coxnet not implemented yet.')
         #cvstuff = cvcoxnet(cpredmat, options['lambdau'], x, y \
@@ -336,12 +336,12 @@ def cvglmnet(*, x,
     CVerr['lambda_1se'] = scipy.amax(options['lambdau'][cvm <= semin]).reshape([1])
     CVerr['class'] = 'cvglmnet'
     
-    return(CVerr)
+    return CVerr
         
 # end of cvglmnet
 #==========================
 def doCV(i, x, y, family, foldid, nfolds, is_offset, **options):
-    which = (foldid == i) | (foldid>=nfolds)
+    which = (foldid == i) | (foldid<0)
     opts = options.copy()
     opts['weights'] = opts['weights'][~which, ]
     opts['lambdau'] = options['lambdau']
@@ -351,5 +351,5 @@ def doCV(i, x, y, family, foldid, nfolds, is_offset, **options):
     xr = x[~which, ]
     yr = y[~which, ]
     newFit = glmnet(x = xr, y = yr, family = family, **opts)    
-    return(newFit)
+    return newFit
     

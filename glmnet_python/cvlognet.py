@@ -4,19 +4,20 @@ Internal function called by cvglmnet. See also cvglmnet
 
 """
 import scipy
-from glmnetPredict import glmnetPredict
-from wtmean import wtmean
-from cvcompute import cvcompute
+from glmnet_python.glmnetPredict import glmnetPredict
+from glmnet_python.wtmean import wtmean
+from glmnet_python.cvcompute import cvcompute
 
-def cvlognet(fit, \
-            lambdau, \
-            x, \
-            y, \
-            weights, \
-            offset, \
-            foldid, \
-            ptype, \
-            grouped, \
+def cvlognet(fit,
+            lambdau,
+            x,
+            y,
+            weights,
+            offset,
+            foldid,
+            nfolds,
+            ptype,
+            grouped,
             keep = False):
     
     typenames = {'deviance':'Binomial Deviance', 'mse':'Mean-Squared Error', 
@@ -37,11 +38,7 @@ def cvlognet(fit, \
         nc = len(classes)
         indexes = scipy.eye(nc, nc)
         y = indexes[sy, :]
-    else:
-        classes = scipy.arange(nc) + 1 # 1:nc
-        
     N = y.size
-    nfolds = scipy.amax(foldid) + 1
     if (N/nfolds < 10) and (type == 'auc'):
         print('Warning: Too few (<10) observations per fold for type.measure=auc in cvlognet')
         print('Warning:     changed to type.measure = deviance. Alternately, use smaller value ')
@@ -53,9 +50,8 @@ def cvlognet(fit, \
         grouped = False
 
     is_offset = not(len(offset) == 0)
-    predmat = scipy.ones([y.shape[0], lambdau.size])*scipy.NAN               
-    nfolds = scipy.amax(foldid) + 1
-    nlams = []    
+    predmat = scipy.ones([y.shape[0], lambdau.size])*scipy.Inf
+    nlams = []
     for i in range(nfolds):
         which = foldid == i
         fitobj = fit[i].copy()
@@ -68,7 +64,7 @@ def cvlognet(fit, \
         predmat[which, 0:nlami] = preds
         nlams.append(nlami)
     # convert nlams to scipy array
-    nlams = scipy.array(nlams, dtype = scipy.integer)
+    nlams = scipy.array(nlams, dtype=scipy.integer)
 
     if ptype == 'auc':
         cvraw = scipy.zeros([nfolds, lambdau.size])*scipy.NaN
@@ -90,9 +86,8 @@ def cvlognet(fit, \
         N = y.shape[0] - scipy.sum(scipy.isnan(predmat), axis = 0, keepdims = True)
         yy1 = scipy.tile(y[:,0:1], [1, lambdau.size])
         yy2 = scipy.tile(y[:,1:2], [1, lambdau.size])
-
     if ptype == 'mse':
-        cvraw = (yy1 - (1 - predmat))**2 + (yy2 - (1 - predmat))**2
+        cvraw = (yy1 - (1 - predmat))**2
     elif ptype == 'deviance':
         predmat = scipy.minimum(scipy.maximum(predmat, prob_min), prob_max)
         lp = yy1*scipy.log(1-predmat) + yy2*scipy.log(predmat)
@@ -101,7 +96,7 @@ def cvlognet(fit, \
         ly = scipy.dot(y*ly, scipy.array([1.0, 1.0]).reshape([2,1]))
         cvraw = 2*(scipy.tile(ly, [1, lambdau.size]) - lp)
     elif ptype == 'mae':
-        cvraw = scipy.absolute(yy1 - (1 - predmat)) + scipy.absolute(yy2 - (1 - predmat))
+        cvraw = scipy.absolute(yy1 - (1 - predmat))
     elif ptype == 'class':
         cvraw = yy1*(predmat > 0.5) + yy2*(predmat <= 0.5)
     
@@ -114,7 +109,6 @@ def cvlognet(fit, \
         cvraw = cvob['cvraw']
         weights = cvob['weights']
         N = cvob['N']
-        
     cvm = wtmean(cvraw, weights)
     sqccv = (cvraw - cvm)**2
     cvsd = scipy.sqrt(wtmean(sqccv, weights)/(N-1))

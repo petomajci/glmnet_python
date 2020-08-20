@@ -14,7 +14,7 @@ setup(name='glmnet_python',
       author_email = 'bbalasub@gmail.com',
       license = 'GPL-2',
       packages=['glmnet_python'],
-      install_requires=['joblib>=0.10.3'],
+      install_requires=['joblib>=0.10.3', 'scipy', 'numpy'],
       package_data={'glmnet_python': ['*.so', 'glmnet_python/*.so']},
       classifiers=[
         'Development Status :: 4 - Beta',
