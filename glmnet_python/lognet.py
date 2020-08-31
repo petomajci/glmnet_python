@@ -24,7 +24,7 @@ def lognet(x, is_sparse, irs, pcs, y, weights, offset, parm,
         
     if (noo != nobs):
         raise ValueError('x and y have different number of rows in call to glmnet')
-    
+
     if nc == 1:
         classes, sy = scipy.unique(y, return_inverse = True)
         nc = len(classes)
@@ -37,8 +37,31 @@ def lognet(x, is_sparse, irs, pcs, y, weights, offset, parm,
         if nc > 2:
             raise ValueError('More than two classes in y. use multinomial family instead')
         else:
-            nc = 1
-            y = y[:, [1, 0]]
+            if nc == 1: # trivial constant input shape of y is [:,1] no training needed whatsoever
+                        # just return a trivial model
+                fit = dict()
+                # predict either constant 0 or constant 1
+                if y[0, 0] > 0:  a00 = 100.0
+                else:  a00 = -100.0
+                a0 = a00*scipy.ones([nlam], dtype=scipy.float64)
+                fit['a0'] = a0
+                fit['label'] = classes
+                beta = scipy.zeros([nvars, nlam], dtype=scipy.float64);
+                fit['beta'] = beta
+                dev = -1 * scipy.ones([nlam], dtype=scipy.float64)
+                fit['dev'] = dev
+                fit['nulldev'] = -1
+                fit['df'] = scipy.zeros([1,nlam], dtype = scipy.float64);
+                fit['lambdau'] = -1*scipy.ones([nlam], dtype = scipy.float64)
+                fit['npasses'] = -1
+                fit['jerr'] = -1
+                fit['dim'] = scipy.array([nvars, nlam], dtype = scipy.integer)
+                fit['offset'] = False
+                fit['class'] = 'lognet'
+                return fit
+            else:
+                y = y[:, [1, 0]]
+                nc = 1
     #
     if (len(weights) != 0): 
         t = weights > 0
